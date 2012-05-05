@@ -216,6 +216,10 @@ public:
 		return DistanceList;
 	}	
 	
+	size_t MaxFlow(const IdType &s, const IdType &t) {
+		
+	}
+	
 };
 
 std::vector< SmartVertex< size_t >* > BuildGraph(const std::vector< std::vector< std::pair< size_t, size_t > > > &v) {
@@ -242,9 +246,13 @@ std::vector< SmartVertex< size_t >* > BuildGraph(const std::vector< std::vector<
 }
 
 int main(const int argc, const char** argv) {
-	std::ifstream in("input.txt");
-	std::ofstream out("output.txt");
-	size_t n, s, w, f; 
+	if (argc == 1) {
+		throw("No enought params\n");
+	}
+	std::ifstream in(argv[1]);
+	std::ofstream out(argv[2]);
+	int w;
+	size_t n, s, f; 
 	in >> n >> s >> f;
 	std::vector< std::vector< std::pair< size_t, size_t > > > g(n + 1);	
 	for (size_t i = 1; i <= n; i++) {
