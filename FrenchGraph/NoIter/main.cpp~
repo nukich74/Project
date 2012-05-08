@@ -87,7 +87,7 @@ public:
 		return false;
 	}
 	
-	std::pair< const Edge*, const Edge* > AllConnectedVertex() const {
+	const std::pair< const Edge*, const Edge* > AllConnectedVertex() const {
 		return std::make_pair(VertexSet, VertexSet + this->ConnectionsCount);
 	}	
 	

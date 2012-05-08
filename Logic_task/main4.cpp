@@ -324,7 +324,7 @@ void print_solution(std::ofstream& out, SlnTable::const_iterator beg, SlnTable::
 }
 
 int main(const int argc, const char** argv) {
-	if (argc == 1) {
+	if (argc <= 1) {
 		throw("No param\n");
 	}
 	

@@ -1,6 +1,0 @@
-Found Solution:
-d 1
-q 0
-y 1
-w 1
-x 0

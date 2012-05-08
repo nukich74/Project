@@ -101,7 +101,7 @@ void test2() {
 void test3() {
 	if(1) {
 		NotBadObject obj;
-		GarbageCollector::CollectAllGarbage();
+		g_collector.run();
 		assert(g_mem_usage != 0);
 	}
 	GarbageCollector::CollectAllGarbage();
