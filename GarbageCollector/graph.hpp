@@ -20,8 +20,9 @@
 #include <iterator> 
 
 
+
 template< class Vertex, class IsEdgePred,
-				    typename vertexSet_Iter = typename std::set< Vertex >::const_iterator, 
+				typename vertexSet_Iter = typename std::set< Vertex >::const_iterator, 
                         typename edgeList_Iter = typename std::multiset< std::pair < Vertex, Vertex > >::const_iterator,
                         typename TopSortOut = typename std::vector< Vertex >, 
                         typename CondensationOut = typename std::vector< std::set< Vertex > > >
@@ -38,19 +39,20 @@ private:
 	Graph(const Graph&);
 	Graph& operator=(const Graph&);
 	
+public:
 	struct Transposed {	std::pair< Vertex, Vertex > operator()(const Vertex& a, const Vertex &b) { return std::make_pair(b, a); } };
 	struct Original { std::pair< Vertex, Vertex > operator()(const Vertex& a, const Vertex& b) { return std::make_pair(a, b); } };
-public:
 
+	
 	explicit Graph(const vertexSet_Iter &beg, const vertexSet_Iter &end, 
-		 const edgeList_Iter &ebeg, const edgeList_Iter &eend) {
+		const edgeList_Iter &ebeg, const edgeList_Iter &eend) {
 		vset_base.first = beg;
 		vset_base.second = end;
 		edgelist_base.first = ebeg;
 		edgelist_base.second = eend;	
 	}
 
-	template< class TransformEdge >
+	template< class TransformEdge = Original >
 	void dfs(const Vertex &v) {
 		TransformEdge trans;
 		IsEdgePred Pred(edgelist_base, vset_base);
@@ -66,11 +68,11 @@ public:
 				in_sort.push_back(tvert);
 				used.insert(tvert);  
 								
-				std::for_each(vset_base.first, vset_base.second, [&Pred, &used, &st, this, &trans, &tvert] (const Vertex &q){
-					if ((used.find(q) ==  used.end()) && (Pred(trans(tvert, q)))) {
-						st.push(q); 
+				for (auto q = vset_base.first; q != vset_base.second; ++q) {
+					if ((used.find(*q) ==  used.end()) && (Pred(trans(tvert, *q)))) {
+						st.push(*q); 
 					}
-				}); 
+				}
 
 			}
 		}
@@ -93,12 +95,13 @@ public:
 		used.clear();
 		in_sort.clear();
 		out_sort.clear();
-
-		std::for_each(vset_base.first, vset_base.second, [&used, this](const Vertex &v) {
-			if (used.find(v) == used.end()) {
-				this->dfs< Original >(v);
+		std::cout << "used size" << used.size() << '\n';
+		for (auto s = vset_base.first; s != vset_base.second; ++s) {
+			if (used.find(*s) == used.end()) {
+				this->dfs< Original >(*s);
 			}
-		});
+		}
+		std::cout << "used size" << used.size() << '\n';
 		return out_sort;
 	}
 
@@ -109,13 +112,13 @@ public:
 		out_sort.clear();
 		used.clear();
 		cond.clear();
-		std::for_each(top_sort.rbegin(), top_sort.rend(), [&cond, &used, &in_sort, this] (const Vertex &v) {
+		for (auto v = top_sort.rbegin(); v != top_sort.rend(); ++v) {
 			if (used.find(v) == used.end()) {
 				this->dfs< Transposed >(v);
 				cond.push_back(vSet(in_sort.begin(), in_sort.end()));
 				in_sort.clear();
 			}
-		});
+		}
 	
 		return cond;
 	}
