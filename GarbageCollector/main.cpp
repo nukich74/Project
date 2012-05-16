@@ -14,27 +14,29 @@ void* operator new(size_t size) {
 	void *p = malloc(size + sizeof(size_t));
 	*(size_t*)p = size;
 	g_mem_usage += size;
+//	std::cout << " creating "<< (size_t*)p + 1 << '\n';
 	return (size_t*)p + 1;
 }
 
 void operator delete(void *p) {
+//	std::cout << "deleting " << p << '\n';
 	size_t* smart_point = (size_t*) p;
 	g_mem_usage -= *--smart_point;
 	free(smart_point);
 }
 
+
 class BadBadObject: public GarbageCollector::Object {
 private:
-	int *i;
+	int i;
 public:
 	BadBadObject() {
-		i = (int *)malloc(sizeof(int) * 100);
+		i = 100;
 	}
 	std::vector< GarbageCollector::Object* > AllPointers() {
 		return std::vector< GarbageCollector::Object* >();
 	}
 	~BadBadObject() {
-		free(i);
 	}
 };
 
@@ -61,7 +63,12 @@ public:
 		tmp.push_back(obj);
 		return tmp;
 	}
+	
 	VeryBadObject *obj;
+	
+	~VeryBadObject() {
+
+	}
 };
 
 class NotBadObject:public GarbageCollector::Object {
@@ -84,34 +91,30 @@ public:
 };
 
 void test1() {
-	BadObject tmp;
+	BadBadObject tmp;
+	std::cout << g_mem_usage << '\n';
 	GarbageCollector::CollectAllGarbage();
-	assert(g_mem_usage != 0);
 }
 
 void test2() {
-	if(1) {
-		BadObject tmp;
-	}
-	assert(g_mem_usage != 0);
+	NotBadObject obj;
+	std::cout << g_mem_usage << '\n';
 	GarbageCollector::CollectAllGarbage();
-	assert(g_mem_usage == 0);
+	std::cout << g_mem_usage << '\n';
 }
 
-void test3() {
-	if(1) {
-		NotBadObject obj;
-		GarbageCollector::CollectAllGarbage();
-		assert(g_mem_usage != 0);
-	}
-	GarbageCollector::CollectAllGarbage();
-	assert(g_mem_usage == 0);
-}
 
 int main() {
+	std::cout << "test1:\n";
 	test1();
+	std::cout << g_mem_usage << '\n';
+	
+	std::cout << "test2:\n";
 	test2();
-	test3();
+	GarbageCollector::CollectAllGarbage();
+	std::cout << g_mem_usage << "\n";
+
 	GarbageCollector::FreeMemory();
+	std::cout << g_mem_usage << '\n';
 	return 0;
 }
